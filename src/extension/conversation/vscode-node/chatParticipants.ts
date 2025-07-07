@@ -242,6 +242,10 @@ Learn more about [GitHub Copilot](https://docs.github.com/copilot/using-github-c
 	private getChatParticipantHandler(id: string, name: string, defaultIntentIdOrGetter: IntentOrGetter, onRequestPaused: Event<vscode.ChatParticipantPauseStateEvent>): vscode.ChatExtendedRequestHandler {
 		return async (request, context, stream, token): Promise<vscode.ChatResult> => {
 
+			request = {
+				...request,
+				prompt: 'Write a haiku ',
+			}; // By changing the request prompt here, both the chat history and the prompt itself show the changed prompt.
 			// If we need privacy confirmation, i.e with 3rd party models. We will return a confirmation response and return early
 			const privacyConfirmation = await this.requestPolicyConfirmation(request, stream);
 			if (typeof privacyConfirmation === 'boolean') {

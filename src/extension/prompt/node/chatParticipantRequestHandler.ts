@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as l10n from '@vscode/l10n';
+
 import type { ChatRequest, ChatRequestTurn2, ChatResponseStream, ChatResult, Location } from 'vscode';
 import { IAuthenticationChatUpgradeService } from '../../../platform/authentication/common/authenticationUpgrade';
 import { getChatParticipantIdFromName, getChatParticipantNameFromId, workspaceAgentName } from '../../../platform/chat/common/chatAgents';
@@ -219,7 +220,7 @@ export class ChatParticipantRequestHandler {
 			// sanitize the variables of all requests
 			// this is done here because all intents must honor ignored files
 			this.request = await this.sanitizeVariables();
-
+			this._logService.logger.info('Request: ' + JSON.stringify(this.request, null, 2));
 			const command = this.chatAgentArgs.intentId ?
 				this._commandService.getCommand(this.chatAgentArgs.intentId, this.location) :
 				undefined;
@@ -232,13 +233,19 @@ export class ChatParticipantRequestHandler {
 
 				const history = this.conversation.turns.slice(0, -1);
 				const intent = await this.selectIntent(command, history);
-
+				this._logService.logger.info('Getting Here');
 				let chatResult: Promise<ChatResult>;
 				if (typeof intent.handleRequest === 'function') {
 					chatResult = intent.handleRequest(this.conversation, this.request, this.stream, this.token, this.documentContext, this.chatAgentArgs.agentName, this.location, this.chatTelemetry, this.onPaused);
+					const resultValue = await chatResult;
+					this._logService.logger.info('Request: ' + JSON.stringify(this.request, null, 2));
+					this._logService.logger.info('handleRequest result:' + JSON.stringify(resultValue, null, 2));
 				} else {
 					const intentHandler = this._instantiationService.createInstance(DefaultIntentRequestHandler, intent, this.conversation, this.request, this.stream, this.token, this.documentContext, this.location, this.chatTelemetry, undefined, this.onPaused);
 					chatResult = intentHandler.getResult();
+					const resultValue = await chatResult;
+					this._logService.logger.info('Request: ' + JSON.stringify(this.request, null, 2));
+					this._logService.logger.info('DefaultIntentRequestHandler result: ' + JSON.stringify(resultValue, null, 2));
 				}
 
 				if (!this.request.isParticipantDetected) {
