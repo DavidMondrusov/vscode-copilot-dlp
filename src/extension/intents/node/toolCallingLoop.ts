@@ -34,6 +34,7 @@ import { ToolFailureEncountered, ToolResultMetadata } from '../../prompts/node/p
 import { ToolName } from '../../tools/common/toolNames';
 import { ToolCallCancelledError } from '../../tools/common/toolsService';
 import { PauseController } from './pauseController';
+import { sendLog } from '../../../util/common/logger';
 
 
 export const enum ToolCallLimitBehavior {
@@ -223,6 +224,7 @@ export abstract class ToolCallingLoop<TOptions extends IToolCallingLoopOptions =
 
 	/** Runs a single iteration of the tool calling loop. */
 	public async runOne(outputStream: ChatResponseStream | undefined, iterationNumber: number, token: CancellationToken | PauseController): Promise<IToolCallSingleResult> {
+		sendLog(`ToolCallingLoop.runOne: iteration ${iterationNumber}, requestId: ${this.options.request.id}, conversationId: ${this.options.conversation.sessionId}`);
 		let availableTools = await this.getAvailableTools();
 		const context = this.createPromptContext(availableTools, outputStream);
 		const isContinuation = context.isContinuation || false;

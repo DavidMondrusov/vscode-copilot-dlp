@@ -60,6 +60,7 @@ export class McpToolCallingLoop extends ToolCallingLoop<IMcpToolCallingLoopOptio
 				...this.options.props
 			}
 		);
+		this._logService.logger.trace(`Building MCP tool calling prompt: ${JSON.stringify(this.options.props)}`);
 		return await renderer.render(progress, token);
 	}
 

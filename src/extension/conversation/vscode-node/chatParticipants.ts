@@ -11,6 +11,8 @@ import { ConfigKey, IConfigurationService } from '../../../platform/configuratio
 import { IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
 import { IOctoKitService } from '../../../platform/github/common/githubService';
 import { IExperimentationService } from '../../../platform/telemetry/common/nullExperimentationService';
+import { sendLog } from '../../../util/common/logger';
+import { redactSecrets } from '../../../util/common/sanitize';
 import { Event, Relay } from '../../../util/vs/base/common/event';
 import { DisposableStore, IDisposable } from '../../../util/vs/base/common/lifecycle';
 import { autorun } from '../../../util/vs/base/common/observableInternal';
@@ -241,11 +243,16 @@ Learn more about [GitHub Copilot](https://docs.github.com/copilot/using-github-c
 
 	private getChatParticipantHandler(id: string, name: string, defaultIntentIdOrGetter: IntentOrGetter, onRequestPaused: Event<vscode.ChatParticipantPauseStateEvent>): vscode.ChatExtendedRequestHandler {
 		return async (request, context, stream, token): Promise<vscode.ChatResult> => {
-
-			request = {
-				...request,
-				prompt: 'Write a haiku ',
-			}; // By changing the request prompt here, both the chat history and the prompt itself show the changed prompt.
+			const modPrompt = redactSecrets(request.prompt);
+			if (modPrompt !== request.prompt) {
+				stream.warning(vscode.l10n.t('Your prompt has been sanitized to remove sensitive information. Received prompt: {0}', modPrompt));
+				sendLog(
+					`Chat request prompt sanitized for participant ${name} (${id}):\n` +
+					`  Original: ${request.prompt}\n` +
+					`  Modified: ${modPrompt}`
+				);
+				request = { ...request, prompt: modPrompt };
+			}
 			// If we need privacy confirmation, i.e with 3rd party models. We will return a confirmation response and return early
 			const privacyConfirmation = await this.requestPolicyConfirmation(request, stream);
 			if (typeof privacyConfirmation === 'boolean') {
@@ -269,7 +276,15 @@ Learn more about [GitHub Copilot](https://docs.github.com/copilot/using-github-c
 				defaultIntentId;
 
 			const onPause = Event.chain(onRequestPaused, $ => $.filter(e => e.request === request).map(e => e.isPaused));
-			const handler = this.instantiationService.createInstance(ChatParticipantRequestHandler, context.history, request, stream, token, { agentName: name, agentId: id, intentId }, onPause);
+			const handler = this.instantiationService.createInstance(
+				ChatParticipantRequestHandler,
+				context.history,
+				request,
+				stream,
+				token,
+				{ agentName: name, agentId: id, intentId },
+				onPause
+			);
 			return await handler.getResult();
 		};
 	}

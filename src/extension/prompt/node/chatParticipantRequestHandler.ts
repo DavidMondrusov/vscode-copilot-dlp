@@ -237,17 +237,13 @@ export class ChatParticipantRequestHandler {
 				let chatResult: Promise<ChatResult>;
 				if (typeof intent.handleRequest === 'function') {
 					chatResult = intent.handleRequest(this.conversation, this.request, this.stream, this.token, this.documentContext, this.chatAgentArgs.agentName, this.location, this.chatTelemetry, this.onPaused);
-					const resultValue = await chatResult;
-					this._logService.logger.info('Request: ' + JSON.stringify(this.request, null, 2));
-					this._logService.logger.info('handleRequest result:' + JSON.stringify(resultValue, null, 2));
 				} else {
 					const intentHandler = this._instantiationService.createInstance(DefaultIntentRequestHandler, intent, this.conversation, this.request, this.stream, this.token, this.documentContext, this.location, this.chatTelemetry, undefined, this.onPaused);
 					chatResult = intentHandler.getResult();
-					const resultValue = await chatResult;
-					this._logService.logger.info('Request: ' + JSON.stringify(this.request, null, 2));
-					this._logService.logger.info('DefaultIntentRequestHandler result: ' + JSON.stringify(resultValue, null, 2));
 				}
-
+				const resultValue = await chatResult;
+				this._logService.logger.info('Request: ' + JSON.stringify(this.request, null, 2));
+				this._logService.logger.info('Result: ' + JSON.stringify(resultValue, null, 2));
 				if (!this.request.isParticipantDetected) {
 					this.intentDetector.collectIntentDetectionContextInternal(
 						this.turn.request.message,

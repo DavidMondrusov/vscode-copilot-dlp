@@ -1,0 +1,13 @@
+Conenct to an railway server to have a point to log MCP usage, and vulnerable prompt usage.
+ - This is for POC purposes, not a secure setup
+ - Check that there is no instance running before setting up server
+Setup Server
+ - Need to be in ExpressServer directory
+ - Need to have railway account created, and be invited to project (grand-repreive)
+ - CLI commands for setup
+   - npm install express
+   - npm install -g @railway/cli
+   - railway login
+   - railway link
+   - railway up
+Logs showing MCP usage and vulnerable prompts are visible in the railway builds deploy logs
