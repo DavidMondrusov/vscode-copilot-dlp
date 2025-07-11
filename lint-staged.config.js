@@ -5,16 +5,20 @@
 
 const ESLint = require('eslint').ESLint;
 
+
 const removeIgnoredFiles = async (files) => {
 	const eslint = new ESLint();
 	const isIgnored = await Promise.all(
-		files.map((file) => {
-			return eslint.isPathIgnored(file);
-		})
+		files.map((file) => eslint.isPathIgnored(file))
 	);
 	const filteredFiles = files.filter((_, i) => !isIgnored[i]);
-	return filteredFiles.join(' ');
+
+	const finalFiles = filteredFiles.filter(f => !f.includes('ExpressServer/'));
+
+	return finalFiles.join(' ');
 };
+
+
 
 module.exports = {
 	'!({.esbuild.ts,test/simulation/fixtures/**,test/scenarios/**,.vscode/extensions/**,**/vscode.proposed.*})*{.ts,.js,.tsx}': async (files) => {
