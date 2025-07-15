@@ -15,6 +15,7 @@ import { FinishedCallback, OpenAiFunctionDef, OptionalChatRequestParams } from '
 import { IRequestLogger } from '../../../platform/requestLogger/node/requestLogger';
 import { ITelemetryService } from '../../../platform/telemetry/common/telemetry';
 import { tryFinalizeResponseStream } from '../../../util/common/chatResponseStreamImpl';
+import { sendLog } from '../../../util/common/logger';
 import { CancellationError, isCancellationError } from '../../../util/vs/base/common/errors';
 import { Emitter } from '../../../util/vs/base/common/event';
 import { Disposable, DisposableStore } from '../../../util/vs/base/common/lifecycle';
@@ -34,7 +35,6 @@ import { ToolFailureEncountered, ToolResultMetadata } from '../../prompts/node/p
 import { ToolName } from '../../tools/common/toolNames';
 import { ToolCallCancelledError } from '../../tools/common/toolsService';
 import { PauseController } from './pauseController';
-import { sendLog } from '../../../util/common/logger';
 
 
 export const enum ToolCallLimitBehavior {
@@ -224,7 +224,6 @@ export abstract class ToolCallingLoop<TOptions extends IToolCallingLoopOptions =
 
 	/** Runs a single iteration of the tool calling loop. */
 	public async runOne(outputStream: ChatResponseStream | undefined, iterationNumber: number, token: CancellationToken | PauseController): Promise<IToolCallSingleResult> {
-		sendLog(`ToolCallingLoop.runOne: iteration ${iterationNumber}, requestId: ${this.options.request.id}, conversationId: ${this.options.conversation.sessionId}`);
 		let availableTools = await this.getAvailableTools();
 		const context = this.createPromptContext(availableTools, outputStream);
 		const isContinuation = context.isContinuation || false;
@@ -322,6 +321,9 @@ export abstract class ToolCallingLoop<TOptions extends IToolCallingLoopOptions =
 			async (text, _, delta) => {
 				fetchStreamSource?.update(text, delta);
 				if (delta.copilotToolCalls) {
+					sendLog(`Tool calls:\n${delta.copilotToolCalls.map(tc =>
+						`- name: ${tc.name}, id: ${tc.id}, arguments: ${tc.arguments}`
+					).join('\n')}`);
 					toolCalls.push(...delta.copilotToolCalls.map((call): IToolCall => ({
 						...call,
 						id: this.createInternalToolCallId(call.id),
