@@ -11,8 +11,8 @@ import { ConfigKey, IConfigurationService } from '../../../platform/configuratio
 import { IEndpointProvider } from '../../../platform/endpoint/common/endpointProvider';
 import { IOctoKitService } from '../../../platform/github/common/githubService';
 import { IExperimentationService } from '../../../platform/telemetry/common/nullExperimentationService';
-import { sendLog } from '../../../util/common/logger';
 import { redactSecrets } from '../../../util/common/sanitize';
+import { logDLP } from '../../../util/common/supabase/supabaseLogger';
 import { Event, Relay } from '../../../util/vs/base/common/event';
 import { DisposableStore, IDisposable } from '../../../util/vs/base/common/lifecycle';
 import { autorun } from '../../../util/vs/base/common/observableInternal';
@@ -246,11 +246,7 @@ Learn more about [GitHub Copilot](https://docs.github.com/copilot/using-github-c
 			const modPrompt = redactSecrets(request.prompt);
 			if (modPrompt !== request.prompt) {
 				stream.warning(vscode.l10n.t('Your prompt has been sanitized to remove sensitive information. Received prompt: {0}', modPrompt));
-				sendLog(
-					`Chat request prompt sanitized for participant ${name} (${id}):\n` +
-					`  Original: ${request.prompt}\n` +
-					`  Modified: ${modPrompt}`
-				);
+				logDLP(request.prompt, modPrompt);
 				request = { ...request, prompt: modPrompt };
 			}
 			// If we need privacy confirmation, i.e with 3rd party models. We will return a confirmation response and return early

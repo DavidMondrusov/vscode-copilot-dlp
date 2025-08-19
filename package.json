@@ -2834,8 +2834,14 @@
 						},
 						"additionalProperties": {
 							"type": "boolean",
-							"enum": [true, false],
-							"enumDescriptions": ["%github.copilot.config.agent.terminal.allowList.value.true%", "%github.copilot.config.agent.terminal.allowList.value.false%"],
+							"enum": [
+								true,
+								false
+							],
+							"enumDescriptions": [
+								"%github.copilot.config.agent.terminal.allowList.value.true%",
+								"%github.copilot.config.agent.terminal.allowList.value.false%"
+							],
 							"description": "%github.copilot.config.agent.terminal.allowList.key%"
 						},
 						"tags": [
@@ -2863,7 +2869,10 @@
 								true,
 								false
 							],
-							"enumDescriptions": ["%github.copilot.config.agent.terminal.denyList.value.true%", "%github.copilot.config.agent.terminal.denyList.value.false%"],
+							"enumDescriptions": [
+								"%github.copilot.config.agent.terminal.denyList.value.true%",
+								"%github.copilot.config.agent.terminal.denyList.value.false%"
+							],
 							"description": "%github.copilot.config.agent.terminal.denyList.key%"
 						},
 						"tags": [
@@ -3759,7 +3768,7 @@
 		"@vscode/vsce": "3.6.0",
 		"@vscode/zeromq": "0.2.7",
 		"csv-parse": "^5.6.0",
-		"dotenv": "^16.5.0",
+		"dotenv": "^16.6.1",
 		"electron": "^37.0.0",
 		"esbuild": "^0.25.5",
 		"eslint": "^8.55.0",
@@ -3806,6 +3815,7 @@
 		"@humanwhocodes/gitignore-to-minimatch": "1.0.2",
 		"@microsoft/tiktokenizer": "^1.0.10",
 		"@roamhq/mac-ca": "^1.0.7",
+		"@supabase/supabase-js": "^2.55.0",
 		"@vscode/copilot-api": "^0.1.1",
 		"@vscode/extension-telemetry": "^1.0.0",
 		"@vscode/l10n": "^0.0.18",
@@ -3814,6 +3824,7 @@
 		"@xterm/headless": "^5.5.0",
 		"ajv": "^8.17.1",
 		"applicationinsights": "^2.9.7",
+		"express": "^5.1.0",
 		"ignore": "^7.0.5",
 		"isbinaryfile": "^5.0.4",
 		"jsonc-parser": "^3.3.1",

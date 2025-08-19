@@ -15,7 +15,7 @@ import { FinishedCallback, OpenAiFunctionDef, OptionalChatRequestParams } from '
 import { IRequestLogger } from '../../../platform/requestLogger/node/requestLogger';
 import { ITelemetryService } from '../../../platform/telemetry/common/telemetry';
 import { tryFinalizeResponseStream } from '../../../util/common/chatResponseStreamImpl';
-import { sendLog } from '../../../util/common/logger';
+import { logMCP } from '../../../util/common/supabase/supabaseLogger';
 import { CancellationError, isCancellationError } from '../../../util/vs/base/common/errors';
 import { Emitter } from '../../../util/vs/base/common/event';
 import { Disposable, DisposableStore } from '../../../util/vs/base/common/lifecycle';
@@ -321,9 +321,7 @@ export abstract class ToolCallingLoop<TOptions extends IToolCallingLoopOptions =
 			async (text, _, delta) => {
 				fetchStreamSource?.update(text, delta);
 				if (delta.copilotToolCalls) {
-					sendLog(`Tool calls:\n${delta.copilotToolCalls.map(tc =>
-						`- name: ${tc.name}, id: ${tc.id}, arguments: ${tc.arguments}`
-					).join('\n')}`);
+					delta.copilotToolCalls.map(async tc => await logMCP(tc.name, tc.id, tc.arguments));
 					toolCalls.push(...delta.copilotToolCalls.map((call): IToolCall => ({
 						...call,
 						id: this.createInternalToolCallId(call.id),
